@@ -9,6 +9,8 @@ import { useState } from "react";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify"
+import { useDispatch } from "react-redux";
+import { login } from "../Redux/userReducer";
 
 function Login() {
   const container = document.getElementById("container");
@@ -20,13 +22,18 @@ function Login() {
   const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
   // const Login = (e) => {
-  //   e.preventDefault();
-  //   if(validateEmail && validateName && validatePassword)
-  //   {
-    
-  //   }
-  // }
-  
+    //   e.preventDefault();
+    //   if(validateEmail && validateName && validatePassword)
+    //   {
+      
+      //   }
+      // }
+      
+  const code =Math.random().toString(36).substring(2,7);
+  const dispatch = useDispatch();
+  // const[formdata,setFormdata] = useState({
+  //   username: '';
+  // })
   const validateEmail = () => {
     const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
@@ -84,6 +91,7 @@ function Login() {
       username: nameValue,
       email: emailValue,
       password: passwordValue,
+      code : code
     })
       .then((res) => {
         console.log(res.data);
@@ -109,14 +117,32 @@ function Login() {
     }
   };
   const handleSignIn = () => {
-
-    const isEmailValid = validateEmail();
-    const isPasswordValid = validatePassword();
-
-    if (isPasswordValid && isEmailValid) {
-      navigate("/home");
+    if (nameValue === "" ||passwordValue === "") 
+    {
+    toast.error("Enter all fields");
+  } 
+  else {
+    axios.get(`http://localhost:8080/login/login/${nameValue}/${passwordValue}`)
+    .then((res) => {
+       console.log(res.data);
+        if(res.data==='login sucessfully')
+        { 
+          toast.success(res.data);
+          setTimeout(()=>
+          {
+            dispatch(login({
+              username :nameValue
+            }))
+           navigate("/");
+          },3000)   
+        }
+        else
+        {
+        toast.error(res.data);
+        }
+    })
     }
-  };
+}
 
   useEffect(() => {
     const signUpButton = document.getElementById("signUp");
@@ -155,7 +181,6 @@ function Login() {
     <>
     <div className="doop">
       <div className="container" id="container">
-        <div className="form-container sign-up-container">
             <ToastContainer
               position="top-center"
               autoClose={3000}
@@ -168,6 +193,7 @@ function Login() {
               pauseOnHover
               theme="dark"
       />
+        <div className="form-container sign-up-container">
           <form action="#" className="Login-form" onSubmit={(e)=>e.preventDefault()}>
             <h1 className="create_account">Create Account</h1>
 
@@ -233,14 +259,14 @@ function Login() {
             </div>
             <span className="use-account">or use your account</span>
             <input
-              type="email"
-              placeholder="Email"
-              value={emailValue}
+              type="text"
+              placeholder="username"
+              value={nameValue}
               className="signin-email"
-              onChange={(e) => setEmailValue(e.target.value)}
+              onChange={(e) => setNameValue(e.target.value)}
               required
             />
-            <span className="error-message-4">{emailError}</span>
+            {/* <span className="error-message-4">{emailError}</span> */}
             <input
               type="password"
               placeholder="Password"
@@ -249,7 +275,7 @@ function Login() {
               onChange={(e) => setPasswordValue(e.target.value)}
               required
             />
-            <span className="error-message-5">{passwordError}</span>
+            {/* <span className="error-message-5">{passwordError}</span> */}
             <Link to="/forgot">
               <span className="forgot-password">Forgot your password?</span>
             </Link>

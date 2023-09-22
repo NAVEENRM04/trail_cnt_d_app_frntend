@@ -224,6 +224,11 @@ footer a {
 	width:23rem;
 	top:9rem;
 }
+.forgot_code{
+	position:absolute;
+	top:70%;
+
+}
 
 .error-message-6
 {
